@@ -1,5 +1,6 @@
 from __future__ import annotations
 import json
+import re
 
 from src.models import (
     Agent2Output,
@@ -182,13 +183,14 @@ class FeatureRequirementsGenerator:
                     preconditions=uc.get("preconditions", []),
                     postconditions=uc.get("postconditions", []),
                     main_flow=EmpresaFlow(
-                        title=main.get("title", ""), steps=main.get("steps", [])
+                        title=main.get("title", ""),
+                        steps=_strip_step_numbers(main.get("steps", [])),
                     ),
                     alternative_flows=[
-                        EmpresaAltFlow(**af) for af in uc.get("alternative_flows", [])
+                        _alt_flow(af) for af in uc.get("alternative_flows", [])
                     ],
                     exception_flows=[
-                        EmpresaAltFlow(**ef) for ef in uc.get("exception_flows", [])
+                        _alt_flow(ef) for ef in uc.get("exception_flows", [])
                     ],
                 )
             )
@@ -208,6 +210,25 @@ class FeatureRequirementsGenerator:
             NonFunctionalRequirement(**rnf)
             for rnf in parsed.get("non_functional_requirements", [])
         ]
+
+
+# ── Flow steps ────────────────────────────────────────────────────────────────
+# The template numbers the steps itself ("{{ loop.index }}. {{ step }}"), so a step
+# that carries its own number renders twice ("4. 1. O administrador ..."). The LLM
+# does it anyway, in two flavours: "1. ..." in the main flow and "FA001.2. ..." in
+# the alternative/exception flows. Strip the prefix before rendering.
+_STEP_NUMBER_RE = re.compile(r"^\s*(?:[A-Z]{2,3}\d{1,3}\.)?\d{1,3}[.)]\s+")
+
+
+def _strip_step_numbers(steps: list[str]) -> list[str]:
+    return [_STEP_NUMBER_RE.sub("", step or "", count=1).strip() for step in steps]
+
+
+def _alt_flow(flow: dict) -> EmpresaAltFlow:
+    """Builds an alternative/exception flow, normalizing its step numbering."""
+    data = dict(flow)
+    data["steps"] = _strip_step_numbers(data.get("steps", []))
+    return EmpresaAltFlow(**data)
 
 
 # ── Deduplication ─────────────────────────────────────────────────────────────

@@ -46,7 +46,9 @@ _VALORI_CSS = f"""
     margin: 0;
     background: {_VALORI_DARK};
     @top-left {{ content: none; }}
+    @top-right {{ content: none; }}
     @bottom-right {{ content: none; }}
+    @bottom-center {{ content: none; }}
     @bottom-left {{ content: none; }}
   }}
 

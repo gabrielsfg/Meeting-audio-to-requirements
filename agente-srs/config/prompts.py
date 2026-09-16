@@ -218,6 +218,13 @@ Regras:
   quando fizer sentido, fluxos alternativos (FA001, FA002, ...) e de exceção (FE001, FE002, ...).
 - Fluxos alternativos/exceção descrevem a condição de desvio ("Se no passo X ...") e os passos.
 - Passos atômicos, em voz ativa ("O sistema exibe...", "O usuário seleciona...").
+- NÃO numere os passos dentro do texto: cada item de "steps" começa direto pela ação
+  ("O sistema exibe..."), sem prefixos como "1.", "1)" ou "FA001.1." — a numeração é
+  aplicada pelo documento. Prefixos no texto geram numeração duplicada no PDF.
+- Fluxo principal ENXUTO: no máximo 8 passos, agrupando ações correlatas em um único passo
+  (ex.: "O usuário preenche os dados obrigatórios e submete o formulário"). Prefira 1 ou 2
+  fluxos alternativos e até 3 de exceção, com 1 a 3 passos cada. Um caso de uso não deve
+  passar de meia página no documento final.
 - IDs dos casos de uso começam em UC{start_index:03d}.
 
 Retorne EXATAMENTE este JSON:
